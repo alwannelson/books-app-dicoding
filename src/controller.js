@@ -2,96 +2,128 @@ const { nanoid } = require('nanoid')
 const books = require('./books.js')
 
 exports.createBook = (req, res) => {
-    const { title = 'untitled', type, author, body } = req.body
+    const { name, year, author, summary, publisher, pageCount, readPage, reading } = req.body
 
-    const id = nanoid(4)
-    const createdAt = new Date().toISOString()
-    const updatedAt = createdAt
-    const newBook = { id, title, type, author, body, createdAt, updatedAt }
+    const id = nanoid(16)
+    const bookId = id
+    const insertedAt = new Date().toISOString()
+    const updatedAt = insertedAt
+    let finished = false
 
-    books.push(newBook)
+    if (pageCount === readPage) {
+        finished = true
+    }
 
-    const isSuccess = books.filter((book) => book.id === id).length > 0
-
-    if (!isSuccess) {
-        return res.status(500).json({
-            status: 'failed',
-            message: `Can't save ${title}.`,
+    if (name.length < 1) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Gagal menambahkan buku. Mohon isi nama buku'
         })
     }
 
+    if (readPage > pageCount) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount'
+        })
+    }
+
+    const newBook = { id, name, year, author, summary, publisher, pageCount, readPage, finished, reading, insertedAt, updatedAt }
+    books.push(newBook)
+
     res.status(201).json({
-        status: 'successfully',
-        message: `${title} saved.`,
-        data: newBook
+        status: 'success',
+        message: 'Buku berhasil ditambahkan.',
+        data: { bookId }
     })
 }
 
 exports.getBooks = (req, res) => {
     res.status(200).json({
-        status: 'successfully',
+        status: 'success',
         data: { books }
     })
 }
 
 exports.getBookById = (req, res) => {
-    const { id } = req.params
-    
-    const book = books.find((b) => b.id === id)
+    const { bookId } = req.params
+
+    const book = books.find((b) => b.id === bookId)
 
     if (!book) {
         return res.status(404).json({
-            status: 'failed',
-            message: 'Book not found'
+            status: 'fail',
+            message: 'Buku tidak ditemukan'
         })
     }
 
     res.status(200).json({
-        status: 'successfully',
+        status: 'success',
         data: { book }
     })
 }
 
 exports.deleteBookById = (req, res) => {
-    const { id } = req.params
+    const { bookId } = req.params
 
-    const book = books.find((b) => b.id === id)
-    const index = books.findIndex((b) => b.id === id)
+    const book = books.find((b) => b.id === bookId)
+    const index = books.findIndex((b) => b.id === bookId)
 
     if (index !== -1) {
         books.splice(index, 1)
 
         return res.status(200).json({
-            status: 'successfully',
-            message: `${book.title} deleted.`
+            status: 'success',
+            message: `Buku berhasil dihapus`
         })
     }
 
     res.status(404).json({
-        status: 'failed',
-        message: `Can't delete book.`
+        status: 'fail',
+        message: `Buku gagal dihapus. Id tidak ditemukan`
     })
 }
 
 exports.updateBookById = (req, res) => {
-    const { id } = req.params
-    const { title, type, author, body } = req.body
+    const { bookId } = req.params
+    const { name, year, author, summary, publisher, pageCount, readPage, reading } = req.body
     const updatedAt = new Date().toISOString()
 
-    const index = books.findIndex((b) => b.id === id)
-    
+    if (!name) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Gagal memperbarui buku. Mohon isi nama buku'
+        })
+    }
+
+    if (readPage > pageCount) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount'
+        })
+    }
+
+    // if (!id) {
+    //     return res.status(404).json({
+    //         status: 'fail',
+    //         message: 'Gagal memperbarui buku. Id tidak ditemukan'
+    //     })
+    // }
+
+    const index = books.findIndex((b) => b.id === bookId)
+
     if (index !== -1) {
-        books[index] = {...books[index], title, type, author, body, updatedAt }
-        const data = {...books[index]}
+        books[index] = { ...books[index], name, year, author, summary, publisher, pageCount, readPage, reading, updatedAt }
+        const data = { ...books[index] }
         return res.status(200).json({
-            status: 'successfully',
-            message: `${title} updated.`,
+            status: 'success',
+            message: `Buku berhasil diperbarui`,
             data
         })
     }
 
-    res.status(500).json({
-        status: 'failed',
-        message: `Can't update.`
+    res.status(404).json({
+        status: 'fail',
+        message: `Id tidak ditemukan`
     })
 }
