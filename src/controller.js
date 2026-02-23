@@ -42,7 +42,7 @@ exports.getBooks = (req, res) => {
     const data = books.map(({ id, name, publisher }) => ({ id, name, publisher }))
     res.status(200).json({
         status: 'success',
-        data
+        data: { books: data}
     })
 }
 
@@ -125,6 +125,6 @@ exports.updateBookById = (req, res) => {
 
     res.status(404).json({
         status: 'fail',
-        message: `Id tidak ditemukan`
+        message: `Gagal memperbarui buku. Id tidak ditemukan`
     })
 }
