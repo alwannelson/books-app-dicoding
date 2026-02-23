@@ -14,7 +14,7 @@ exports.createBook = (req, res) => {
         finished = true
     }
 
-    if (name.length < 1) {
+    if (!name) {
         return res.status(400).json({
             status: 'fail',
             message: 'Gagal menambahkan buku. Mohon isi nama buku'
@@ -33,15 +33,16 @@ exports.createBook = (req, res) => {
 
     res.status(201).json({
         status: 'success',
-        message: 'Buku berhasil ditambahkan.',
+        message: 'Buku berhasil ditambahkan',
         data: { bookId }
     })
 }
 
 exports.getBooks = (req, res) => {
+    const data = books.map(({ id, name, publisher }) => ({ id, name, publisher }))
     res.status(200).json({
         status: 'success',
-        data: { books }
+        data
     })
 }
 
@@ -99,7 +100,7 @@ exports.updateBookById = (req, res) => {
     if (readPage > pageCount) {
         return res.status(400).json({
             status: 'fail',
-            message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount'
+            message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount'
         })
     }
 
