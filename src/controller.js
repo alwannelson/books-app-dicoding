@@ -107,7 +107,7 @@ exports.updateBookById = (req, res) => {
     // if (!id) {
     //     return res.status(404).json({
     //         status: 'fail',
-    //         message: 'Gagal memperbarui buku. Id tidak ditemukan'
+    //         smessage: 'Gagal memperbarui buku. Id tidak ditemukan'
     //     })
     // }
 
